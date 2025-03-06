@@ -1,0 +1,200 @@
+Refactor the Existing Code:
+
+Organize the code into modules (e.g., renderer, input, camera, lighting).
+
+Create a clean architecture for the engine (e.g., entity-component-system or ECS).
+
+Implement a First-Person Camera:
+
+Add mouse and keyboard controls for movement and looking around.
+
+Use cglm for camera transformations.
+
+Add Input Handling:
+
+Use SDL2 to handle keyboard, mouse, and controller input.
+
+Implement a Basic Scene Graph:
+
+Create a system to manage objects in the scene (e.g., rooms, models, lights).
+
+Step 2: Build the Level Editor
+Create a Basic UI:
+
+Use a library like Dear ImGui for the editor’s user interface.
+
+Add buttons, sliders, and menus for creating and editing levels.
+
+Add Shape Creation Tools:
+
+Allow users to create basic shapes (cubes, spheres, planes) and position them in the scene.
+
+Implement Texture Mapping:
+
+Allow users to apply textures to shapes.
+
+Support UV mapping for basic shapes.
+
+Save and Load Levels:
+
+Implement a file format (e.g., JSON or custom binary) to save and load levels.
+
+Step 3: Implement the Model Viewer
+Add Model Loading:
+
+Use a library like Assimp to load 3D models (e.g., .obj, .fbx).
+
+Render models in the scene.
+
+Add Model Manipulation Tools:
+
+Allow users to move, rotate, and scale models in the editor.
+
+Add Material Support:
+
+Allow users to assign materials (e.g., diffuse, specular, normal maps) to models.
+
+Step 4: Build the Asset Importer
+Add Texture Importing:
+
+Support common image formats (e.g., .png, .jpg).
+
+Use a library like stb_image for loading textures.
+
+Add Audio Importing:
+
+Use a library like SDL2_mixer or OpenAL for loading and playing sounds and music.
+
+Organize Assets:
+
+Create a system to manage and organize assets (e.g., textures, models, sounds).
+
+Step 5: Enhance the Lighting Engine
+Add Multiple Light Types:
+
+Implement directional, point, and spotlights.
+
+Use shaders to calculate lighting for each light type.
+
+Add Shadows:
+
+Implement shadow mapping for directional and spotlights.
+
+Use a depth buffer to render shadows.
+
+Add Post-Processing:
+
+Implement effects like bloom, SSAO, and color grading.
+
+Step 6: Build the Engine Editor
+Add Engine Settings:
+
+Allow users to modify rendering settings (e.g., resolution, vsync, shadow quality).
+
+Add Debug Tools:
+
+Implement a debug overlay to show FPS, memory usage, and other metrics.
+
+Add Scripting Support:
+
+Use a scripting language like Lua or Python for game logic.
+
+Step 7: Add Physics and Collision
+Implement Collision Detection:
+
+Use a library like Bullet Physics or implement basic AABB and sphere collision.
+
+Add Physics Simulation:
+
+Add gravity, velocity, and forces to objects in the scene.
+
+Step 8: Polish and Optimize
+Optimize Rendering:
+
+Use techniques like frustum culling and level-of-detail (LOD) to improve performance.
+
+Add Documentation:
+
+Write documentation for the engine and tools.
+
+Test and Debug:
+
+Test the engine thoroughly and fix bugs.
+
+3. Tools and Libraries
+Here are some tools and libraries you can use to implement the MOON ENGINE:
+
+Graphics: OpenGL, GLEW, GLFW, SDL2
+
+Math: cglm
+
+UI: Dear ImGui
+
+Model Loading: Assimp
+
+Physics: Bullet Physics
+
+Audio: SDL2_mixer, OpenAL
+
+Scripting: Lua, Python
+
+Texture Loading: stb_image
+
+4. Development Plan
+Let’s break the development into phases:
+
+Phase 1: Core Engine
+Refactor the existing code.
+
+Implement a first-person camera.
+
+Add input handling.
+
+Create a basic scene graph.
+
+Phase 2: Level Editor
+Build the UI.
+
+Add shape creation tools.
+
+Implement texture mapping.
+
+Add save/load functionality.
+
+Phase 3: Model Viewer
+Add model loading.
+
+Add model manipulation tools.
+
+Add material support.
+
+Phase 4: Asset Importer
+Add texture and audio importing.
+
+Organize assets.
+
+Phase 5: Lighting Engine
+Add multiple light types.
+
+Implement shadows.
+
+Add post-processing.
+
+Phase 6: Engine Editor
+Add engine settings.
+
+Add debug tools.
+
+Add scripting support.
+
+Phase 7: Physics and Collision
+Implement collision detection.
+
+Add physics simulation.
+
+Phase 8: Polish and Optimize
+Optimize rendering.
+
+Add documentation.
+
+Test and debug.

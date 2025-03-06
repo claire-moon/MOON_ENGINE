@@ -3,6 +3,7 @@
 #include "core/input.h"
 #include "core/renderer.h"
 #include "shaders/shader.h"
+#include <SDL2/SDL.h>
 
 int main(int argc, char* argv[]) {
 	Engine engine;
@@ -15,7 +16,7 @@ int main(int argc, char* argv[]) {
 	vec3 cameraPos = {0.0f, 0.0f, 3.0f};
 	vec3 cameraFront = {0.0f, 0.0f, -1.0f};
 	vec3 cameraUp = {0.0f, 1.0f, 0.0f};
-	Camera_Init(&camera, cameraPos, cameraFront, cameraUp);
+	Camera_Init(&camera, cameraPos, cameraUp, -90.0f, 0.0f);
 
 	//load shaders
 	GLuint shaderProgram = loadShaders("src/shaders/vertex_shader.glsl", "src/shaders/fragment_shader.glsl");
@@ -25,7 +26,8 @@ int main(int argc, char* argv[]) {
 	}
 
 	//main loop
-	Engine_Run(&engine);
+	Engine_Run(&engine, &camera, shaderProgram);
+	
 
 	//clean up
 	Engine_Shutdown(&engine);
