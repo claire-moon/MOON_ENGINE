@@ -3,6 +3,7 @@
 
 #include <cglm/cglm.h>
 #include <stdbool.h>
+#include <GL/glew.h>
 
 typedef struct SceneNode {
 	mat4 transform; //local transformation matrix
@@ -10,6 +11,7 @@ typedef struct SceneNode {
 	struct SceneNode** children; //array of child nodes
 	int childCount; //num of children
 	bool isVisible; //whether node is visible
+	GLuint textureID; //texture ID
 } SceneNode;
 
 //function prototypes

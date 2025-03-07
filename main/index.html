@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta name = "viewport" content="width=device-width, initial-scale=1.0">
+	<title>MOON ENGINE</title>
+	<style>
+	body {
+		font-family: Arial, sans-serif;
+		margin: 20px;
+	}
+
+	ul {
+		list-style-type: none;
+		padding: 0;
+	}
+
+	li {
+		margin: 5px
+	}
+
+	a {
+		text-decoration: none;
+		color: #007BFF;
+	}
+
+	a:hover {
+		text-decoration: underline;
+	}
+	</style>
+</head>
+<body>
+	<h1>MOON ENGINE FILES</h1>
+	<ul id = "fileList"></ul>
+
+	<script>
+		//func to fetch dir listing
+		async function fetchDirectory(path = '') {
+			try {
+				const response = await fetch(`./${path}`);
+				const text = await response.text();
+				const parser = new DOMParser();
+				const doc = parser.parseFromString(text, 'text/html');
+				const links = doc.querySelectorAll('a');
+
+				const fileList = document.getElementById('fileList');
+				fileList.innerHTML = '';
+
+				links.forEach(link => {
+					const href = link.getAttribute('href');
+					const text = link.textContent;
+
+					if (href.endsWith('/')) {
+						//directory handling
+						const li = document.createElement('li');
+						const a = document.createElement('a');
+						a.href = `./${path}${href}`;
+						a.textContent = text;
+						li.appendChild(a);
+						fileList.appendChild(li);
+						} else if (!href.startsWith('?')) {
+						//file handling
+						const li = document.createElement('li');
+						const a = document.createElement('a');
+						a.href = `./${path}${href}`;
+						a.textContent = text;
+						a.download = text;
+						li.appendChild(a);
+						fileList.appendChild(li);
+				}
+			});
+		}	catch (error) {
+				console.error('CANT FETCH DIR!!! UR!!GG!!', error);
+				const fileList = document.getElementById('fileList');
+				fileList.innerHTML = '<li>ERROR LOADING DIR. FUCKED UP!<li>';
+			}
+		}
+
+		//get current path from URL
+		const currentPath = window.location.pathname.split('/').slice(2).join('/');
+		fetchDirectory(currentPath);
+	</script>
+</body>
+</html>

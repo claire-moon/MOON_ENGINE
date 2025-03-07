@@ -69,11 +69,11 @@ int p[512] = {
 };
 
 //init the premutation table, innit!!
-void initPermutationTable() {
-	for (int i = 0; i < 256; i++) {
-		p[256 + i] = p[i];
-	}
-}
+//void initPermutationTable() {
+//	for (int i = 0; i < 256; i++) {
+//		p[256 + i] = p[i];
+//	}
+//}
 
 //perlin noise function
 float perlin(float x, float y, float z) {
@@ -118,36 +118,24 @@ float perlin(float x, float y, float z) {
 	}
 
 //generate noise texture for cubemap face
-GLuint generateNoiseTexture(int width, int height, float scale, vec3 color) {
-	GLuint textureID;
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-
+unsigned char* generateNoiseData(int width, int height, float scale, vec3 color) {
 	unsigned char* data = (unsigned char*)malloc(width * height * 3);
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
 			float nx = (float)x / width;
 			float ny = (float)y / height;
-			float nz = 0.5f; //fixed z for 2d noise
-			
+			float nz = 0.5f;
+
 			float noise = perlin(nx * scale, ny * scale, nz * scale);
-			noise = (noise + 1.0f) * 0.5f; //normalize to [0, 1]
-			
+			noise = (noise + 1.0f) * 0.5f;
+
 			int index = (y * width + x) * 3;
 			data[index] = (unsigned char)(noise * color[0] * 255);
 			data[index + 1] = (unsigned char)(noise * color[1] * 255);
 			data[index + 2] = (unsigned char)(noise * color[2] * 255);
 		}
 	}
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	free(data);
-	return textureID;
+	return data;
 }
 
 //load cubemap tex
@@ -161,8 +149,10 @@ GLuint loadCubemap() {
 	vec3 color = {1.0f, 0.8f, 0.6f}; //base color for noise
 	
 	for (unsigned int i = 0; i < 6; i++) {
-		GLuint faceTexture = generateNoiseTexture(width, height, scale, color);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		unsigned char* data = generateNoiseData(width, height, scale, color);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB,
+				width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		free(data); //free data after uploading
 	}
 
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -204,6 +194,12 @@ void Renderer_RenderSceneNode(SceneNode* node, GLuint shaderProgram) {
 		//pass the node transformation to the shader
 		GLint modelLoc = glGetUniformLocation(shaderProgram, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*)node->transform);
+
+
+		//bind the nodes texture
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, node->textureID);
+		glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
 
 		//render node mesh (mesh system implemented later)
 
