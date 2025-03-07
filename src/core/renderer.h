@@ -3,7 +3,8 @@
 
 #include "engine.h"
 #include "camera.h"
+#include "scenenode.h"
 
-void Renderer_Render(Engine* engine, Camera* camera, GLuint shaderProgram);
+void Renderer_Render(Engine* engine, Camera* camera, GLuint shaderProgram, SceneNode* rootNode);
 
 #endif

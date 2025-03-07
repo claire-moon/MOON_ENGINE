@@ -14,6 +14,7 @@ typedef struct {
 	float speed;
 	float sensitivity;
 	float fov;
+	mat4 view;
 } Camera;
 
 void Camera_Init(Camera* camera, vec3 position, vec3 up, float yaw, float pitch);

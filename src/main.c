@@ -2,6 +2,7 @@
 #include "core/camera.h"
 #include "core/input.h"
 #include "core/renderer.h"
+#include "core/scenenode.h"
 #include "shaders/shader.h"
 #include <SDL2/SDL.h>
 
@@ -25,11 +26,25 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	//main loop
-	Engine_Run(&engine, &camera, shaderProgram);
-	
+	//create scene graph
+	SceneNode* rootNode = SceneNode_Create();
+	SceneNode* childNode1 = SceneNode_Create();
+	SceneNode* childNode2 = SceneNode_Create();
 
+	//transformation setup
+	glm_translate(rootNode->transform, (vec3){0.0f, 0.0f, -5.0f});
+	glm_translate(childNode1->transform, (vec3){1.0f, 0.0f, 0.0f});
+	glm_translate(childNode2->transform, (vec3){-1.0f, 0.0f, 0.0f});
+
+	//add children to root node
+	SceneNode_AddChild(rootNode, childNode1);
+	SceneNode_AddChild(rootNode, childNode2);
+
+	//main loop
+	Engine_Run(&engine, &camera, shaderProgram, rootNode);
+	
 	//clean up
+	SceneNode_Destroy(rootNode);
 	Engine_Shutdown(&engine);
 	return 0;
 }

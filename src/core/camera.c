@@ -29,6 +29,11 @@ void Camera_UpdateVectors(Camera* camera) {
 	glm_vec3_normalize(camera->right);
 	glm_vec3_cross(camera->right, camera->front, camera->up);
 	glm_vec3_normalize(camera->up);
+
+	//update view matrix
+	vec3 center;
+	glm_vec3_add(camera->position, camera->front, center);
+	glm_lookat(camera->position, center, camera->up, camera->view);
 } 
 
 //keyboard processing

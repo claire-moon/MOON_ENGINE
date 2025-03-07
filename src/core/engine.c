@@ -64,7 +64,7 @@ void Engine_Shutdown(Engine* engine) {
 	SDL_Quit();
 }
 
-void Engine_Run(Engine* engine, Camera* camera, GLuint shaderProgram) {
+void Engine_Run(Engine* engine, Camera* camera, GLuint shaderProgram, SceneNode* rootNode) {
 	Uint32 previousTime = SDL_GetTicks();
 	while (engine->running) {
 		//calculate delta time
@@ -74,6 +74,6 @@ void Engine_Run(Engine* engine, Camera* camera, GLuint shaderProgram) {
 
 		//handle input and render
 		Input_HandleEvents(engine, camera, deltaTime);
-		Renderer_Render(engine, camera, shaderProgram);
+		Renderer_Render(engine, camera, shaderProgram, rootNode);
 	}
 }
