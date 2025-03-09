@@ -24,16 +24,17 @@ void Camera_UpdateVectors(Camera* camera) {
 	glm_vec3_normalize(front);
 	glm_vec3_copy(front, camera->front);
 
-	//calculate right and up vectors
-	glm_vec3_cross(camera->front, camera->worldUp, camera->right);
-	glm_vec3_normalize(camera->right);
-	glm_vec3_cross(camera->right, camera->front, camera->up);
-	glm_vec3_normalize(camera->up);
+	//calculate right vector
+	vec3 right;
+	glm_vec3_cross(camera->front, camera->worldUp, right);
+	glm_vec3_normalize(right);
+	glm_vec3_copy(right, camera->right);
 
-	//update view matrix
-	vec3 center;
-	glm_vec3_add(camera->position, camera->front, center);
-	glm_lookat(camera->position, center, camera->up, camera->view);
+	//calculate up vector
+	vec3 up;
+	glm_vec3_cross(camera->right, camera->front, up);
+	glm_vec3_normalize(up);
+	glm_vec3_copy(up, camera->up);
 } 
 
 //keyboard processing
@@ -73,4 +74,23 @@ void Camera_ProcessMouseScroll(Camera* camera, float yoffset) {
 	    camera->fov = 1.0f;
 	if (camera->fov > 45.0f)
 	    camera->fov = 45.0f;
+}
+
+int Camera_CheckCollision(Camera* camera, vec3 position) {
+	//less brain-dead implementation of collision code
+	float roomMinX = -5.0f;
+	float roomMaxX = 5.0f;
+	float roomMinY = -5.0f;
+	float roomMaxY = 5.0f;
+	float roomMinZ = -5.0f;
+	float roomMaxZ = 5.0f;
+
+	//collision detection as followed (why is this code so beautiful..?)
+	if (position[0] < roomMinX || position[0] > roomMaxX ||
+	    position[1] < roomMinY || position[1] > roomMaxY ||
+	    position[2] < roomMinZ || position[2] > roomMaxZ) {
+		return 1; //COLLISION DETECTED !!
+	}
+
+	return 0; //NO COLLISION !!!
 }

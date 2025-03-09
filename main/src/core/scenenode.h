@@ -7,6 +7,7 @@
 
 typedef struct SceneNode {
 	mat4 transform; //local transformation matrix
+	mat4 globalTransform; //global transformation matrix
 	struct SceneNode* parent; //parent node
 	struct SceneNode** children; //array of child nodes
 	int childCount; //num of children

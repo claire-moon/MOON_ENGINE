@@ -51,8 +51,9 @@ int Engine_Init (Engine* engine, int width, int height, const char* title) {
 		return 0;
 	}
 
-	//enable depth testing
+	//enable depth testing (and other opengl shit)
 	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
 
 	engine->running = 1;
 	return 1;
@@ -64,7 +65,7 @@ void Engine_Shutdown(Engine* engine) {
 	SDL_Quit();
 }
 
-void Engine_Run(Engine* engine, Camera* camera, GLuint shaderProgram, SceneNode* rootNode) {
+void Engine_Run(Engine* engine, Camera* camera, GLuint shaderProgram, SceneNode* rootNode, vec3 lightPos, GLuint VAO) {
 	Uint32 previousTime = SDL_GetTicks();
 	while (engine->running) {
 		//calculate delta time
@@ -74,6 +75,6 @@ void Engine_Run(Engine* engine, Camera* camera, GLuint shaderProgram, SceneNode*
 
 		//handle input and render
 		Input_HandleEvents(engine, camera, deltaTime);
-		Renderer_Render(engine, camera, shaderProgram, rootNode);
+		Renderer_Render(engine, camera, shaderProgram, rootNode, lightPos, VAO);
 	}
 }

@@ -15,6 +15,6 @@ typedef struct {
 
 int Engine_Init(Engine* engine, int width, int height, const char* title);
 void Engine_Shutdown(Engine* engine);
-void Engine_Run (Engine* engine, Camera* camera, GLuint shaderProgram, SceneNode* rootNode);
+void Engine_Run (Engine* engine, Camera* camera, GLuint shaderProgram, SceneNode* rootNode, vec3 lightPos, GLuint VAO);
 
 #endif

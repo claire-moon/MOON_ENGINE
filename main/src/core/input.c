@@ -15,7 +15,7 @@ void Input_HandleEvents(Engine* engine, Camera* camera, float deltaTime) {
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT) {
 			engine->running = 0;
-		} else if (SDL_MOUSEMOTION) {
+		} else if (event.type == SDL_MOUSEMOTION) {
 			float xoffset = event.motion.xrel; //x-axis
 			float yoffset = -event.motion.yrel; //inverted y-axis
 			Camera_ProcessMouseMovement(camera, xoffset, yoffset, 1);

@@ -23,4 +23,6 @@ void Camera_ProcessKeyboard(Camera* camera, int direction, float deltaTime);
 void Camera_ProcessMouseMovement(Camera* camera, float xoffset, float yoffset, int constrainPitch);
 void Camera_ProcessMouseScroll(Camera* camera, float yoffset);
 
+int Camera_CheckCollision(Camera* camera, vec3 position);
+
 #endif

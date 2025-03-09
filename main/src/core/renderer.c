@@ -3,9 +3,9 @@
 #include <math.h>
 #include <stdlib.h>
 
-//hopefully i can just declare this here otherwise i need to include this in
-//a header file... ;(
 GLuint cubemapTexture, skyboxVAO, skyboxVBO, skyboxEBO;
+GLuint defaultTextureID = 0;
+GLuint cubeVAO, cubeVBO, cubeEBO;
 
 float skyboxVertices[] = {
 	-1.0f,  1.0f, -1.0f,
@@ -164,8 +164,35 @@ GLuint loadCubemap() {
 	return textureID;
 }
 
+//noise tex handling (might make the above cubemap rendering redundant)
+GLuint load2DNoiseTexture() {
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	int width = 512, height = 512;
+	float scale = 5.0f;
+	vec3 color = {1.0f, 0.8f, 0.6f};
+	unsigned char* data = generateNoiseData(width, height, scale, color);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	free(data);
+	return textureID;
+}
+
 void Renderer_Init() {
 	cubemapTexture = loadCubemap();
+	defaultTextureID = load2DNoiseTexture();
+	if (defaultTextureID == 0) {
+		printf("FAILED TO LOAD DEFAULT TEX!\n");
+	}
 
 	//generate and bind VAO for the skybox
 	glGenVertexArrays(1, &skyboxVAO);
@@ -189,27 +216,43 @@ void Renderer_Init() {
 	glBindVertexArray(0);
 }
 
-void Renderer_RenderSceneNode(SceneNode* node, GLuint shaderProgram) {
-	if (node && node->isVisible) {
-		//pass the node transformation to the shader
-		GLint modelLoc = glGetUniformLocation(shaderProgram, "model");
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*)node->transform);
+void Renderer_RenderSceneNode(SceneNode* node, GLuint shaderProgram, GLuint VAO) {
+	if (!node || !node->isVisible) return; //skip invis and null nodes
+		
+	GLuint textureID = node->textureID;
+	if (textureID == 0){
+		textureID = defaultTextureID;
+	}
 
+	//bind the nodes texture
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+	glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
 
-		//bind the nodes texture
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, node->textureID);
-		glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
+	//pass model matrix to shader
+	GLint modelLoc = glGetUniformLocation(shaderProgram, "model");
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*)node->globalTransform);
 
-		//render node mesh (mesh system implemented later)
+	//draw call
+	glBindVertexArray(VAO); //use VAO from main.c
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 
-		//render children
-		for (int i = 0; i < node->childCount; i++) {
-			Renderer_RenderSceneNode(node->children[i], shaderProgram);
+	//OpenGL error check
+	GLint error = glGetError();
+	if (error != GL_NO_ERROR) {
+		printf("OpenGL ERROR: %d\n", error);
+	}
+
+	//render children
+	for (int i = 0; i < node->childCount; i++) {
+		if (node->children[i] != node) {
+			Renderer_RenderSceneNode(node->children[i], shaderProgram, VAO);
+	} else {
+		printf("ERROR: NODE %p IS SELF-REFERENCING! SKIPPING CHILD!\n", node);
 		}
 	}
 }
-
 //render skybox
 void Renderer_RenderSkybox(GLuint shaderProgram, Camera* camera) {
 	glDepthMask(GL_FALSE); //disable depth writing (always behind everything)
@@ -243,19 +286,39 @@ void Renderer_RenderSkybox(GLuint shaderProgram, Camera* camera) {
 	glDepthMask(GL_TRUE); //re-enable depth writing
 }
 
-void Renderer_Render(Engine* engine, Camera* camera, GLuint shaderProgram, SceneNode* rootNode) {
+void Renderer_Render(Engine* engine, Camera* camera, GLuint shaderProgram, SceneNode* rootNode, vec3 lightPos, GLuint VAO) {
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//render skybox
-	Renderer_RenderSkybox(shaderProgram, camera);
+	//activate shader
+	glUseProgram(shaderProgram);
+
+	//pass matrices to shader
+	mat4 view, projection;
+	glm_mat4_copy(camera->view, view);
+	int width, height;
+	SDL_GetWindowSize(engine->window, &width, &height);
+	float aspectRatio = (float)width / (float)height;  //use window size
+	glm_perspective(glm_rad(camera->fov), aspectRatio, 0.1f, 100.0f, projection);
+
+	GLint viewLoc = glGetUniformLocation(shaderProgram, "view");
+	GLint projLoc = glGetUniformLocation(shaderProgram, "projection");
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, (float*)view);
+	glUniformMatrix4fv(projLoc, 1, GL_FALSE, (float*)projection);
+
+	//render skybox (disabled for now)
+	//Renderer_RenderSkybox(shaderProgram, camera);
+
+	//pass light pos to shader
+	GLint lightPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
+	glUniform3f(lightPosLoc, lightPos[0], lightPos[1], lightPos[2]);
 
 	//render scene graph
 	if (rootNode) {
 		mat4 identity;
 		glm_mat4_identity(identity);
 		SceneNode_UpdateTransform(rootNode, identity);
-		Renderer_RenderSceneNode(rootNode, shaderProgram);
+		Renderer_RenderSceneNode(rootNode, shaderProgram, VAO);
 	}
 	
 	//swap buffers
